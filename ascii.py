@@ -1,77 +1,56 @@
 from PIL import Image
 import argparse
 
-# take care of the command line arguments
-parser = argparse.ArgumentParser()
+def main():
+    #命令行输入参数处理
+    parser = argparse.ArgumentParser()
 
-# define input file、output file and height and width of the output character painting
-parser.add_argument('file',help="file path of the input image file")     # input file
-parser.add_argument('-o', '--output', help="file path of the output character painting file")   # output file
-parser.add_argument('--width', type = int, default = 80, help="the width of the output character painting") # output character painting width
-parser.add_argument('--height', type = int, default = 80, help="the height of the output character painting") # output character painting height
+    parser.add_argument('file')     #输入文件
+    parser.add_argument('-o', '--output')   #输出文件
+    parser.add_argument('--width', type = int, default = 80) #输出字符画宽
+    parser.add_argument('--height', type = int, default = 80) #输出字符画高
 
-# parse and get arguments
-args = parser.parse_args()
+    #获取参数
+    args = parser.parse_args()
 
-# path of the input image file
-IMG = args.file
+    IMG = args.file
+    WIDTH = args.width
+    HEIGHT = args.height
+    OUTPUT = args.output
 
-# width of the output character painting
-WIDTH = args.width
+    ascii_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. ")
 
-# height of the output character painting
-HEIGHT = args.height
+    # 将256灰度映射到70个字符上
+    def get_char(r,g,b,alpha = 256):
+        if alpha == 0:
+            return ' '
+        length = len(ascii_char)
+        gray = int(0.2126 * r + 0.7152 * g + 0.0722 * b)
 
-# path of the output file
-OUTPUT = args.output
+        unit = (256.0 + 1)/length
+        return ascii_char[int(gray/unit)]
 
-ascii_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. ")
-
-def get_char(r,g,b,alpha = 256):
-
-    # check alpha value
-    if alpha == 0:
-        return ' '
-
-    # get length of the chacracter list (70)
-    length = len(ascii_char)
-
-    # convert RGB value into gray value which is in the range of 0-255
-    gray = int(0.2126 * r + 0.7152 * g + 0.0722 * b)
-
-    # the range of gray value is 0-255，while the length of character list is 70
-    # map the gray value into the character list
-    unit = (256.0 + 1)/length
-
-    # return the mapped character
-    return ascii_char[int(gray/unit)]
-
-
-if __name__ == '__main__':
-
-    # open and adjust the width and height of the picture
     im = Image.open(IMG)
     im = im.resize((WIDTH,HEIGHT), Image.NEAREST)
+    im = im.convert('RGB')
 
-    # initilize the result string
     txt = ""
 
-    # loop over every row
     for i in range(HEIGHT):
-        # loop over every column
         for j in range(WIDTH):
-            # convert the RGB value on pixel (j,i) to mapped character and append to the result string
             txt += get_char(*im.getpixel((j,i)))
-        # append the new line character to the end of every row
         txt += '\n'
-    # print out in terminal
+
     print(txt)
 
-    # output the character painting into a file
+    #字符画输出到文件
     if OUTPUT:
         with open(OUTPUT,'w') as f:
             f.write(txt)
     else:
         with open("output.txt",'w') as f:
             f.write(txt)
-            
+
+if __name__ == '__main__':
+    main()
+   
