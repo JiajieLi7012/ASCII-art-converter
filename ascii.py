@@ -2,15 +2,13 @@ from PIL import Image
 import argparse
 
 def main():
-    #命令行输入参数处理
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('file')     #输入文件
-    parser.add_argument('-o', '--output')   #输出文件
-    parser.add_argument('--width', type = int, default = 80) #输出字符画宽
-    parser.add_argument('--height', type = int, default = 80) #输出字符画高
+    parser.add_argument('file')     # path of the input file
+    parser.add_argument('-o', '--output')   # path of the output file
+    parser.add_argument('--width', type = int, default = 80) # the width of the output painting
+    parser.add_argument('--height', type = int, default = 80) # the height of the output painting
 
-    #获取参数
     args = parser.parse_args()
 
     IMG = args.file
@@ -20,7 +18,7 @@ def main():
 
     ascii_char = list("$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. ")
 
-    # 将256灰度映射到70个字符上
+    # map 256 grayscale values to 70 ASCII characters
     def get_char(r,g,b,alpha = 256):
         if alpha == 0:
             return ' '
@@ -32,7 +30,7 @@ def main():
 
     im = Image.open(IMG)
     im = im.resize((WIDTH,HEIGHT), Image.NEAREST)
-    im = im.convert('RGB')
+    im = im.convert('RGB') # ensure the value of each pixel is a tuple
 
     txt = ""
 
@@ -43,12 +41,12 @@ def main():
 
     print(txt)
 
-    #字符画输出到文件
+    # save the ASCII art style painting into the file
     if OUTPUT:
         with open(OUTPUT,'w') as f:
             f.write(txt)
     else:
-        with open("output.txt",'w') as f:
+        with open("result.txt",'w') as f:
             f.write(txt)
 
 if __name__ == '__main__':
